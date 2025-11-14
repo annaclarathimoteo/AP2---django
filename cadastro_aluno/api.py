@@ -1,63 +1,71 @@
 from ninja import Router
 from cadastro_aluno.models import TbAlunos, TbEnderecos, TbNotas, TbDisciplinas
 from typing import List
-from cadastro_aluno.schemas import AlunosSchema, AlunoUpdate, AlunoCreate, EnderecosCreate, Enderecosconsulta, NotasConsulta, Disciplinasconsulta, NotasCreate, DisciplinasCreate, EnderecosUpdate
+from cadastro_aluno.schemas import AlunosSchema, AlunoUpdate, AlunoCreate, EnderecosCreate, Enderecosconsulta, NotasConsulta, Disciplinasconsulta, NotasCreate, DisciplinasCreate, EnderecosUpdate, NotasUpdate, DisciplinasUpdate
 router = Router()
-
+#from cadastrar_alunos
 
 #-------------------------------------------------
-# consultar --> método get 
+# CONSULTAS GET
 #-------------------------------------------------
 
-# consultar todos os endereços, todos os alunos, todas as notas e todas as disciplinas
-
-@router.get("/consultar-alunos/")
+# Consultar todos
+@router.get("/consultar-alunos/", response=List[dict])
 def consultar_alunos(request):
     qs = TbAlunos.objects.all().values()
     return list(qs)
 
 
-@router.get("/consultar-enderecos/")
+@router.get("/consultar-enderecos/", response=List[dict])
 def consultar_endereco(request):
     qs = TbEnderecos.objects.all().values()
     return list(qs)
 
 
-@router.get("/consultar-notas/")
-def consultar_endereco(request):
+@router.get("/consultar-notas/", response=List[dict])
+def consultar_notas(request):
     qs = TbNotas.objects.all().values()
     return list(qs)
 
 
-@router.get("/consultar-disciplinas/")
+@router.get("/consultar-disciplinas/", response=List[dict])
 def consultar_disciplinas(request):
     qs = TbDisciplinas.objects.all().values()
     return list(qs)
 
-# consultar um aluno ou um endereço ou uma nota ou uma disciplina pelo seu id 
 
-@router.get("/aluno-por-id/{aluno_id}", response=list[AlunosSchema])
-def consultar_aluno_id(request, aluno_id:int):
-    qs = TbAlunos.objects.filter(id=aluno_id).all().values()
+#-------------------------------------------------
+# CONSULTAR POR ID
+#-------------------------------------------------
+
+@router.get("/aluno-por-id/{aluno_id}", response=List[dict])
+def consultar_aluno_id(request, aluno_id: int):
+    qs = TbAlunos.objects.filter(id=aluno_id).values()
     return list(qs)
 
 
-@router.get("/endereco-id/{id}", response=list[Enderecosconsulta])
-def consultar_endereco_id(request, id:int):
-    qs = TbEnderecos.objects.filter(id=id).all().values()
+@router.get("/endereco-id/{id}", response=List[dict])
+def consultar_endereco_id(request, id: int):
+    qs = TbEnderecos.objects.filter(id=id).values()
     return list(qs)
 
 
-@router.get("/nota-por-aluno/{id}", response = list[NotasConsulta])
-def consultar_nota_id(request, id:int):
-    qs = TbNotas.objects.filter(id=id).all().values()
+@router.get("/nota-por-aluno/{aluno_id}", response=List[dict])
+def consultar_nota_por_aluno(request, aluno_id: int):
+    qs = (
+        TbNotas.objects
+        .filter(aluno_id=aluno_id)
+        .values("id", "nota", "aluno_id", "disciplina_id")
+    )
     return list(qs)
 
 
-@router.get("/nota-por-aluno/{id}", response = list[Disciplinasconsulta])
-def consultar_disciplina_id(request, id:int):
-    qs = TbDisciplinas.objects.filter(id=id).all().values()
+
+@router.get("/disciplina-por-id/{id}", response=List[dict])
+def consultar_disciplina_id(request, id: int):
+    qs = TbDisciplinas.objects.filter(id=id).values()
     return list(qs)
+
 
 #-------------------------------------------------
 # atualizar --> método put  
@@ -82,7 +90,27 @@ def atualizar_endereco(request, id: int, dados: EnderecosUpdate):
         return {"mensagem": "Endereço atualizado com sucesso."}
     else:
         return {"erro": "Endereço não encontrado."}
+    
+@router.put("/nota-por-id/{id}", response=dict[str, str])
+def atualizar_nota(request, id: int, dados: NotasUpdate):
+    dados_dict = dados.dict(exclude_unset=True)
+    atualizado = TbNotas.objects.filter(id=id).update(**dados_dict)
 
+    if atualizado:
+        return {"mensagem": "Nota atualizada com sucesso."}
+    else:
+        return {"erro": "Nota não encontrada."}
+
+
+@router.put("/disciplina-por-id/{id}", response=dict[str, str])
+def atualizar_disciplina(request, id: int, dados: DisciplinasUpdate):
+    dados_dict = dados.dict(exclude_unset=True)
+    atualizado = TbDisciplinas.objects.filter(id=id).update(**dados_dict)
+
+    if atualizado:
+        return {"mensagem": "Disciplina atualizada com sucesso."}
+    else:
+        return {"erro": "Disciplina não encontrada."}
 
 #-------------------------------------------------
 # Post --> método cadastrar

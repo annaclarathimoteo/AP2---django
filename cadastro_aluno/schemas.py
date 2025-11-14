@@ -60,6 +60,11 @@ class NotasConsulta(Schema):
     nota : Optional[float] = None
 
 class NotasCreate(Schema):
+    aluno_id : Optional[int] = None
+    disciplina_id : Optional[int] = None
+    nota : Optional[float] = None
+
+class NotasUpdate(Schema):
     aluno : Optional[int] = None
     disciplina : Optional[int] = None
     nota : Optional[float] = None
@@ -70,6 +75,12 @@ class Disciplinasconsulta(Schema):
     semestre : Optional[int] = None
 
 class DisciplinasCreate(Schema):
+    disciplina : Optional[str] = None
+    carga : Optional[int] = None
+    semestre : Optional[int] = None
+
+
+class DisciplinasUpdate(Schema):
     disciplina : Optional[str] = None
     carga : Optional[int] = None
     semestre : Optional[int] = None

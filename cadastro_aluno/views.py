@@ -25,3 +25,13 @@ TbAlunos.objects.create(** {
 
 TbAlunos.objects.filter(id=16).delete()
 TbAlunos.objects.filter(id=16).update(**{"nome_mae": "Dona Maria"})
+
+
+
+
+#from cadastro_aluno.models import TbAlunos, TbEnderecos, TbNotas, TbDisciplinas
+#import pandas as pd 
+
+#def tratar_alunos():
+    #qs = TbAlunos.objects.all().values()
+
